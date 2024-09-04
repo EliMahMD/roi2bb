@@ -2,33 +2,13 @@ import json
 import nibabel as nib
 import os
 import glob
+import argparse
 
 
-# Expected data format:
-# images
-    # Patient_001.nii or .nii.gz
-    # Patient_002.nii
-    # ...
-# labels
-    # Patient_001
-    #     left_atrium.json or .mrk.json
-    #     trachea.json
-    #     lymph_node_1.json
-    #     lymph_node_2.json
-    #     lymph_node_3.json
-    #     ...
-    # Patient_002
-    #     left_atrium.json
-    #     trachea.json
-    #     lymph_node.json
-    #     ...
-    # ...
-
-
-class ROI2BB:
+class roi2bb:
     def __init__(self, nifti_file_path: str, json_folder_path: str, output_file_path: str):
-        self.nifti_file_path = nifti_file_path # required for the clacualtion of Yolo format bbox dimensions, since the YOLO bbox dimensions are a ratio of original image's dimensions
-        self.json_folder_path = json_folder_path # path to the folder containing 3D Slicer's output Json files for all ROIs of a single image
+        self.nifti_file_path = nifti_file_path # required for the calculation of Yolo format bbox dimensions since the YOLO bbox dimensions are a ratio of original image's dimensions
+        self.json_folder_path = json_folder_path # path to the folder containing 3D Slicer's output JSON files for all ROIs of a single image
         self.output_file_path = output_file_path # the output text file containing the YOLO format coordinates of all ROIs per image
         self.yolo_content = [] #output text file content
         
@@ -96,3 +76,22 @@ class ROI2BB:
     def run(self):
         self.process_all_rois()
         self.save_output()
+
+def main():
+    parser = argparse.ArgumentParser(description='Convert 3D Slicer ROIs to YOLO bounding box format.')
+    parser.add_argument('nifti_file', type=str, help='Path to the input NIfTI file (.nii or .nii.gz).')
+    parser.add_argument('json_folder', type=str, help='Path to the folder containing the 3D Slicer ROI JSON files.')
+    parser.add_argument('output_file', type=str, help='Path to the output YOLO format text file.')
+    
+    args = parser.parse_args()
+    
+    # Initialize the roi2bb converter
+    converter = roi2bb(args.nifti_file, args.json_folder, args.output_file)
+    
+    # Run the conversion process
+    converter.run()
+    print(f'Converted ROIs from {args.json_folder} and saved YOLO format output to {args.output_file}')
+
+
+if __name__ == '__main__':
+    main()
