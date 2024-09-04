@@ -62,7 +62,7 @@ from roi2bb.converter import ROI2BB
 converter = ROI2BB("path_to_nifti_file.nii", "path_to_json_folder", "output_yolo_format.txt")
 
 converter.run()
-```bash
+```
 ### Class Index Mapping
 
 The method get_class_index maps ROI names to YOLO class indices. You can customize the class labels by editing the dictionary inside this method:
@@ -76,7 +76,7 @@ def get_class_index(self, class_label: str) -> int:
         # Add more class labels and indices here
     }
     return class_mapping.get(class_label, -1)
-```bash
+```
 ### Example Output
 ```bash
 0 0.523 0.312 0.532 0.128 0.276 0.345  # left_atrium
