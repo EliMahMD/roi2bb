@@ -40,8 +40,8 @@ Here is a stepwise guide to use `roi2bb`:
 
 ### Directory Structure:
 
-The image file name and structure do not matter, but the JSON folder must exclusively contain ROIs corresponding to a single image; Each ROI must be named after a predefined class label (e.g. left_atrium, trachea, etc.). In case of multiple ROIs for one class, a number must be added to the name. The numbering order and range do not matter.
-Here is a desired structure, but you can use any structure by `roi2bb`'s Python API (see [Example usage](#usage)), as long as the JSON files of different patients are not mixed.
+Following the YOLO input format, `roi2bb' converts the coordinates of multiple classes and multiple ROIs in each class, to a single text file. Hence, the only consideration is that each of the JSON folders must exclusively contain ROIs corresponding to a single image; Each JSon must be named after a predefined class label (e.g. left_atrium, trachea, etc.) and in case of multiple ROIs for one class, a number must be added by '_' (see below diagram). The numbering order and range do not matter.
+Here is a sample structure, but you can use any structure for `roi2bb`'s Python API (see [Example usage](#usage)), as long as the JSON folder and files follow the mentioned rules.
 
 ```
 project_directory/
