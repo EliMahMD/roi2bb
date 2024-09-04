@@ -40,7 +40,7 @@ Here is a stepwise guide to use `roi2bb`:
 
 ### Directory Structure:
 
-`roi2bb` expects the label folder paths to exclusively contain ROIs corresponding to a single image and each ROI be named after a predefined class labels.
+`roi2bb` expects the JSON folder paths to exclusively contain ROIs corresponding to a single image; Each ROI must be named after a predefined class label (e.g. left_atrium, trachea, etc.). In case of multiple ROIs for one class, a number must be added to the name. The numbering order and range do not matter.
 
 ```
 project_directory/
@@ -51,7 +51,7 @@ project_directory/
 ├── labels/
 │   ├── Patient_001/
 │   │   ├── left_atrium.json
-│   │   ├── lymph_node_1.json
+│   │   ├── lymph_node_4.json
 │   │   ├── lymph_node_2.json
 │   │   ├── lymph_node_3.json
 │   │   └── trachea.json
