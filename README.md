@@ -40,7 +40,8 @@ Here is a stepwise guide to use `roi2bb`:
 
 ### Directory Structure:
 
-`roi2bb` expects the JSON folder paths to exclusively contain ROIs corresponding to a single image; Each ROI must be named after a predefined class label (e.g. left_atrium, trachea, etc.). In case of multiple ROIs for one class, a number must be added to the name. The numbering order and range do not matter.
+The image file name and structure do not matter, but the JSON folder must exclusively contain ROIs corresponding to a single image; Each ROI must be named after a predefined class label (e.g. left_atrium, trachea, etc.). In case of multiple ROIs for one class, a number must be added to the name. The numbering order and range do not matter.
+Here is a desired structure, but you can use any structure by `roi2bb`'s Python API (see [Example usage](#usage)), as long as the JSON files of different patients are not mixed.
 
 ```
 project_directory/
@@ -97,7 +98,7 @@ converter.run()
 ### Example Output:
 ```bash
 0 0.523 0.312 0.532 0.128 0.276 0.345  # left_atrium
-2 0.734 0.512 0.723 0.132 0.254 0.367  # lymph_node_1
+2 0.734 0.512 0.723 0.132 0.254 0.367  # lymph_node_4
 2 0.834 0.612 0.823 0.152 0.274 0.447  # lymph_node_2
 1 0.634 0.412 0.623 0.112 0.234 0.287  # trachea
 ```
