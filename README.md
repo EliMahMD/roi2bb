@@ -59,11 +59,11 @@ project_directory/
 
 Here’s an example of how to use the `roi2bb` class to convert ROIs to YOLO format:
 
-## CLI
+**CLI**
 ```bash
 python roi2bb.py path_to_nifti_file path_to_json_folder path_to_output_file
 ```
-## Python API
+**Python API**
 ```bash
 from roi2bb.converter import roi2bb
 
