@@ -9,13 +9,13 @@ This repository provides a Python class, `roi2bb`, for converting Regions of Int
 
 3. The Slicer output is in JSON format with the ROI 'center' coordinates (x,y,z) and ROI dimensions 'size' (x_length, y_length,z_length) reported under 'markups' tag, while YOLO-compatible input is a text file with each line presenting one ROI containing: 
 
-    ```"class center_z center_x center_y z_length x_length y_length"```
+    ```"class center_z center_x center_y length_z length_x length_y"```
 
     The Slicer gives one JSON file for each ROI, while a single YOLO text file contains multiple ROIs for multiple classes, each class defined by a unique index and each ROI reported in a separate line.
      
 For each image, `roi2bb` receives the path to the NIfTI image file, the path to the folder containing JSON files (one for each ROI) and the desired path to save the YOLO-compatible text file.
 
-### Table of Contents:
+## Table of Contents:
 
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -23,7 +23,7 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 - [Directory Structure](#directory-structure)
 - [License](#license)
 
-### Requirements:
+## Requirements:
 
 - Python 3.x
 - nibabel (for handling NIfTI files)
@@ -31,15 +31,15 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 - json
 - argparse
 
-### Installation
+## Installation
 
-Simply download the `roi2bb` repository, navigate to the roi2bb folder, organize your data to be compatible with the tool and define your desired class labels (e.g. left_atrium, trachea, etc.)
+Simply download the `roi2bb` repository from the upper-right "Code" button dropdown menu, navigate to the roi2bb folder, organize your data to be compatible with the tool and define your desired class labels (e.g. left_atrium, trachea, etc.)
 
-You can see a stepwise guide in the following lines: 
+Here is a stepwise guide to use `roi2bb`:
 
 ### Directory Structure:
 
-roi2bb expects the label folder paths to exclusively contain ROIs corresponding to a single image and each ROI be named after a predefined class labels.
+`roi2bb` expects the label folder paths to exclusively contain ROIs corresponding to a single image and each ROI be named after a predefined class labels.
 
 ```
 project_directory/
