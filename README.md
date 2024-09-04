@@ -15,7 +15,7 @@ This repository provides a Python class, `roi2bb`, for converting Regions of Int
      
 For each image, `roi2bb` receives the path to the NIfTI image file, the path to the folder containing JSON files (one for each ROI) and the desired path to save the YOLO-compatible text file.
 
-### Table of Contents
+### Table of Contents:
 
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -23,7 +23,7 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 - [Directory Structure](#directory-structure)
 - [License](#license)
 
-### Requirements
+### Requirements:
 
 - Python 3.x
 - nibabel (for handling NIfTI files)
@@ -31,7 +31,7 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 - json
 - argparse
 
-### Directory Structure
+### Directory Structure:
 
 The expected data structure is:
 
@@ -55,7 +55,7 @@ project_directory/
     └── yolo_format.txt
 ```
 
-### Example Usage
+### Example Usage:
 
 Here’s an example of how to use the `roi2bb` class to convert ROIs to YOLO format:
 
@@ -71,7 +71,7 @@ converter = roi2bb("path_to_nifti_file.nii", "path_to_json_folder", "output_yolo
 
 converter.run()
 ```
-### Class Index Mapping
+### Class Index Mapping:
 
 The method get_class_index maps ROI names to YOLO class indices. You can customize the class labels by editing the dictionary inside this method:
 
@@ -85,14 +85,19 @@ def get_class_index(self, class_label: str) -> int:
     }
     return class_mapping.get(class_label, -1)
 ```
-### Example Output
+### Example Output:
 ```bash
 0 0.523 0.312 0.532 0.128 0.276 0.345  # left_atrium
 2 0.734 0.512 0.723 0.132 0.254 0.367  # lymph_node_1
 2 0.834 0.612 0.823 0.152 0.274 0.447  # lymph_node_2
 1 0.634 0.412 0.623 0.112 0.234 0.287  # trachea
 ```
-### License
+### License:
 
 ```roi2bb``` is released under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
+### Contact:
+
+Developer: Elham Mahmoudi
+Email: mahmoudi.elham91@gmail.com
+GitHub: [https://github.com/elimah91/roi2bb](https://github.com/elimah91/roi2bb)
