@@ -15,6 +15,24 @@ This repository provides a Python class, `roi2bb`, for converting Regions of Int
      
 For each image, `roi2bb` receives the path to the NIfTI image file, the path to the folder containing JSON files (one for each ROI) and the desired path to save the YOLO-compatible text file.
 
+### Table of Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Example usage](#usage)
+- [Directory Structure](#directory-structure)
+- [License](#license)
+
+### Requirements
+
+- Python 3.x
+- nibabel (for handling NIfTI files)
+- glob
+- json
+- argparse
+
+### Directory Structure
+
 The expected data structure is:
 
 ```
@@ -35,22 +53,7 @@ project_directory/
 │   │   └── trachea.json
 └── output/
     └── yolo_format.txt
-```    
-### Table of Contents
-
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Directory Structure](#directory-structure)
-- [Customization](#customization)
-- [License](#license)
-
-### Requirements
-
-- Python 3.x
-- nibabel (for handling NIfTI files)
-- glob
-- json
+```
 
 ### Example Usage
 
@@ -84,7 +87,7 @@ def get_class_index(self, class_label: str) -> int:
 2 0.834 0.612 0.823 0.152 0.274 0.447  # lymph_node_2
 1 0.634 0.412 0.623 0.112 0.234 0.287  # trachea
 ```
-###License
+### License
 
 ```roi2bb``` is released under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
