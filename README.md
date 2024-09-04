@@ -1,6 +1,6 @@
 # roi2bb
 ### "3D Slicer ROI" to "YOLO Bounding Box" Coordinates Converter
-This repository provides a Python class, `roi2bb`, bridging the gap between 3D volumetric medical imaging annotations and deep learning object detection models, by converting Regions of Interest (ROI) bounding boxes stored in 3D Slicer JSON format into YOLO models input format. 
+This repository provides a Python class, `roi2bb`, bridging the gap between ground truth preparation and model training for 3D volumetric medical imaging, by converting Regions of Interest (ROI) bounding boxes stored in 3D Slicer JSON format into YOLO models input format. 
 
 When it comes to volumetric medical imaging data, there are not many tools (if any) available for 3D bounding box annotation. 3D Slicer's `ROI` function of `markups` module, offers a user-friendly interface to generate 3D bounding boxes around the object/region of interest, edit them in axial, coronal and sagittal views, rotate them for object-oriented tasks and visualize them in 3D view. The central coordinates and the dimensions of these ROI boxes can be extracted as a JSON file, but the output is not compatible with the more commonly used "Image coordinates System", which is the format compatible with the well-known YOLO models. 
 
