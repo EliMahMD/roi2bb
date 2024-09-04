@@ -5,7 +5,7 @@ import glob
 import argparse
 
 
-class roi2bbox:
+class roi2bb:
     def __init__(self, nifti_file_path: str, json_folder_path: str, output_file_path: str):
         self.nifti_file_path = nifti_file_path # required for the calculation of Yolo format bbox dimensions since the YOLO bbox dimensions are a ratio of original image's dimensions
         self.json_folder_path = json_folder_path # path to the folder containing 3D Slicer's output JSON files for all ROIs of a single image
@@ -85,8 +85,8 @@ def main():
     
     args = parser.parse_args()
     
-    # Initialize the roi2bbox converter
-    converter = roi2bbox(args.nifti_file, args.json_folder, args.output_file)
+    # Initialize the roi2bb converter
+    converter = roi2bb(args.nifti_file, args.json_folder, args.output_file)
     
     # Run the conversion process
     converter.run()
