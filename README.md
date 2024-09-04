@@ -1,4 +1,4 @@
-# ROI2BB
+# roi2bb
 ### ROI to YOLO Bounding Box Converter
 
 This repository provides a Python class, `roi2bb`, for converting Regions of Interest (ROI) stored in 3D Slicer JSON format into bounding box coordinates in YOLO format. These two coordinate systems have 3 main differences that should be addressed while converting:
