@@ -40,7 +40,7 @@ project_directory/
 ├── images/
 │   ├── Patient_001.nii or .nii.gz
 │   ├── Patient_002.nii
-│   └──...
+│   │──...
 ├── labels/
 │   ├── Patient_001/
 │   │   ├── left_atrium.json
@@ -52,7 +52,7 @@ project_directory/
 │   │   ├── left_atrium.json
 │   │   ├── lymph_node.json
 │   │   └── trachea.json
-│   └── ...
+│   │── ...
 └── output/
     └── yolo_format.txt
 ```
