@@ -19,8 +19,9 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Example usage](#usage)
 - [Directory Structure](#directory-structure)
+- [Class Index Mapping](#class-index-mapping)
+- [Example usage](#usage)
 - [License](#license)
 
 ## Requirements:
@@ -33,7 +34,7 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 
 ## Installation
 
-Simply download the `roi2bb` repository from the upper-right "Code" button dropdown menu, navigate to the roi2bb folder, organize your data to be compatible with the tool and define your desired class labels (e.g. left_atrium, trachea, etc.)
+Simply download the `roi2bb` repository from the upper-right "Code" button dropdown menu, navigate to the roi2bb folder, organize your data to be compatible with the tool (see [Directory Structure](#directory-structure)) and define your desired class labels, like left_atrium, trachea, etc. (see ).
 
 Here is a stepwise guide to use `roi2bb`:
 
