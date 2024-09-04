@@ -1,5 +1,5 @@
 # ROI2BB
-# ROI to YOLO Bounding Box Converter
+### ROI to YOLO Bounding Box Converter
 
 This repository provides a Python class, ROI2BB, for converting Regions of Interest (ROI) stored in 3D Slicer JSON format into bounding box coordinates in YOLO format. These two coordinate systems have 3 main differnces that should be addressed while converting:
 
@@ -17,6 +17,7 @@ For each image, ROI2BB receives the path to the NIfTI image file, the path to th
 
 The expected data structure is:
 
+```
 project_directory/
 ├── images/
 │   ├── Patient_001.nii or .nii.gz
@@ -34,8 +35,8 @@ project_directory/
 │   │   └── trachea.json
 └── output/
     └── yolo_format.txt
-    
-## Table of Contents
+```    
+### Table of Contents
 
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -44,21 +45,21 @@ project_directory/
 - [Customization](#customization)
 - [License](#license)
 
-## Requirements
+### Requirements
 
 - Python 3.x
 - nibabel (for handling NIfTI files)
 - glob
 - json
 
-## Example Usage
+### Example Usage
 
 Here’s an example of how to use the ROI2BB class to convert ROIs to YOLO format:
 
-```bash
-
+```
 from roi2bb.converter import ROI2BB
 
 converter = ROI2BB("path_to_nifti_file.nii", "path_to_json_folder", "output_yolo_format.txt")
 
 converter.run()
+```
