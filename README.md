@@ -31,9 +31,15 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 - json
 - argparse
 
+### Installation
+
+Simply download the `roi2bb` repository, navigate to the roi2bb folder, organize your data to be compatible with the tool and define your desired class labels (e.g. left_atrium, trachea, etc.)
+
+You can see a stepwise guide in the following lines: 
+
 ### Directory Structure:
 
-The expected data structure is:
+roi2bb expects the label folder paths to exclusively contain ROIs corresponding to a single image and each ROI be named after a predefined class labels.
 
 ```
 project_directory/
@@ -56,23 +62,6 @@ project_directory/
 └── output/
     └── yolo_format.txt
 ```
-
-### Example Usage:
-
-Here’s an example of how to use the `roi2bb` class to convert ROIs to YOLO format:
-
-**CLI**
-```bash
-python roi2bb.py path_to_nifti_file path_to_json_folder path_to_output_file
-```
-**Python API**
-```bash
-from roi2bb.converter import roi2bb
-
-converter = roi2bb("path_to_nifti_file.nii", "path_to_json_folder", "output_yolo_format.txt")
-
-converter.run()
-```
 ### Class Index Mapping:
 
 The method get_class_index maps ROI names to YOLO class indices. You can customize the class labels by editing the dictionary inside this method:
@@ -87,6 +76,23 @@ def get_class_index(self, class_label: str) -> int:
     }
     return class_mapping.get(class_label, -1)
 ```
+### Example Usage:
+
+Now that you downloaded the repository, organized your data and customized your labels, you can use the following commands in a command line interface (CLI) or the next one in a Python interface to convert ROIs to YOLO format by `roi2bb`:
+
+**CLI**
+```bash
+python roi2bb.py path_to_nifti_file path_to_json_folder path_to_output_file
+```
+**Python API**
+```bash
+from roi2bb.converter import roi2bb
+
+converter = roi2bb("path_to_nifti_file.nii", "path_to_json_folder", "output_yolo_format.txt")
+
+converter.run()
+```
+
 ### Example Output:
 ```bash
 0 0.523 0.312 0.532 0.128 0.276 0.345  # left_atrium
