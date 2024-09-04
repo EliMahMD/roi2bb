@@ -99,5 +99,8 @@ def get_class_index(self, class_label: str) -> int:
 ### Contact:
 
 Developer: Elham Mahmoudi
+
 Email: mahmoudi.elham91@gmail.com
+
 GitHub: [https://github.com/elimah91/roi2bb](https://github.com/elimah91/roi2bb)
+
