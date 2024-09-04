@@ -22,10 +22,11 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Directory Structure](#directory-structure)
-- [Class Index Mapping](#class-index-mapping)
-- [Example usage](#usage)
+    - [Directory Structure](#directory-structure)
+    - [Class Index Mapping](#class-index-mapping)
+    - [Example Usage](#usage)
 - [License](#license)
+- [Useful Links](#Useful-Links)
 
 ## Requirements:
 
@@ -109,7 +110,7 @@ converter.run()
 
 ```roi2bb``` is released under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-### Useful links
+### Useful Links
 
 [3D Slicer web page](https://www.slicer.org/) for volumetric medical imaging annotation
 
