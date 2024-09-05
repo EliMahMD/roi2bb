@@ -6,13 +6,13 @@ import argparse
 
 
 class roi2bb:
-    def __init__(self, nifti_file_path: str, json_folder_path: str, output_file_path: str):
-        self.nifti_file_path = nifti_file_path # required for the calculation of Yolo format bbox dimensions since the YOLO bbox dimensions are a ratio of original image's dimensions
+    def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
+        self.image_file_path = image_file_path # required for the calculation of Yolo format bbox dimensions since the YOLO bbox dimensions are a ratio of original image's dimensions
         self.json_folder_path = json_folder_path # path to the folder containing 3D Slicer's output JSON files for all ROIs of a single image
         self.output_file_path = output_file_path # the output text file containing the YOLO format coordinates of all ROIs per image
         self.yolo_content = [] #output text file content
         
-        self.img = nib.load(nifti_file_path)
+        self.img = nib.load(image_file_path)
         self.header = self.img.header
         self.image_resolution = self.header.get_zooms()
         self.image_physical_size_mm = [self.header.get_data_shape()[i] * self.image_resolution[i] for i in range(3)]
@@ -79,14 +79,14 @@ class roi2bb:
 
 def main():
     parser = argparse.ArgumentParser(description='Convert 3D Slicer ROIs to YOLO bounding box format.')
-    parser.add_argument('nifti_file', type=str, help='Path to the input NIfTI file (.nii or .nii.gz).')
+    parser.add_argument('image_file', type=str, help='Path to the input NIfTI image file (.nii or .nii.gz).')
     parser.add_argument('json_folder', type=str, help='Path to the folder containing the 3D Slicer ROI JSON files.')
     parser.add_argument('output_file', type=str, help='Path to the output YOLO format text file.')
     
     args = parser.parse_args()
     
     # Initialize the roi2bb converter
-    converter = roi2bb(args.nifti_file, args.json_folder, args.output_file)
+    converter = roi2bb(args.image_file, args.json_folder, args.output_file)
     
     # Run the conversion process
     converter.run()
