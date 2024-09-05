@@ -88,13 +88,13 @@ Now that you downloaded the repository, organized your data and customized your 
 
 **CLI**
 ```bash
-python roi2bb.py path_to_nifti_file path_to_json_folder path_to_output_file
+python roi2bb.py path_to_image_file path_to_json_folder path_to_output_file
 ```
 **Python API**
 ```bash
 from roi2bb.converter import roi2bb
 
-converter = roi2bb("path_to_nifti_file.nii", "path_to_json_folder", "output_yolo_format.txt")
+converter = roi2bb("path_to_image_file.nii", "path_to_json_folder", "output_yolo_format.txt")
 
 converter.run()
 ```
