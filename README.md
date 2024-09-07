@@ -76,8 +76,8 @@ The method get_class_index maps ROI names to YOLO class indices. You can customi
 def get_class_index(self, class_label: str) -> int:
     class_mapping = {
         "left_atrium": 0,
-        "trachea": 1,
-        "lymph_node": 2,
+        "lymph_node": 1,
+        "trachea": 2,
         # Add more class labels and indices here
     }
     return class_mapping.get(class_label, -1)
@@ -102,9 +102,9 @@ converter.run()
 ### Example Output:
 ```bash
 0 0.523 0.312 0.532 0.128 0.276 0.345  # left_atrium
-2 0.734 0.512 0.723 0.132 0.254 0.367  # lymph_node_4
-2 0.834 0.612 0.823 0.152 0.274 0.447  # lymph_node_2
-1 0.634 0.412 0.623 0.112 0.234 0.287  # trachea
+1 0.734 0.512 0.723 0.132 0.254 0.367  # lymph_node_4
+1 0.834 0.612 0.823 0.152 0.274 0.447  # lymph_node_2
+2 0.634 0.412 0.623 0.112 0.234 0.287  # trachea
 ```
 ### License:
 
