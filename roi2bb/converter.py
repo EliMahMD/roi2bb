@@ -95,3 +95,14 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+#from roi2bb import converter
+
+# converter(
+#  nifti_file_path = "./test.nii.gz",
+#   json_file_paths = ["1.json", "4.json", "8.json", "2.json"]
+#   class_labels = 1,
+#   output_file_path = "output.txt",
+#   verbose = True
+# )
