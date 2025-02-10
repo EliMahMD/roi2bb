@@ -5,7 +5,7 @@ import argparse
 from roi2bb.utils import load, convert_json_to_yolo
 import argparse
 
-class roi2bb:
+class converter:
 def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
         self.image_file_path = image_file_path  # Required for YOLO bbox calculations
         self.json_folder_path = json_folder_path  # Path to JSON annotation folder
