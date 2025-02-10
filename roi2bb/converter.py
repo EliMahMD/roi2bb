@@ -7,7 +7,7 @@ from .utils import (
     get_json_files,
 )
 
-class AnnotationConverter:
+class roi2bb:
     """
     Converts 3D Slicer JSON annotations into YOLO format.
     """
