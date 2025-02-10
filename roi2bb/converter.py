@@ -6,24 +6,24 @@ from roi2bb.utils import load, convert_json_to_yolo
 import argparse
 
 class converter:
-def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
-        self.image_file_path = image_file_path  # Required for YOLO bbox calculations
-        self.json_folder_path = json_folder_path  # Path to JSON annotation folder
-        self.output_file_path = output_file_path  # YOLO output text file
-        self.yolo_content = []  # Output text content
-
-        self.img_data, metadata = load_medical_image(image_file_path)
-        self.image_resolution = metadata.get("resolution", None)
-        self.image_shape = metadata.get("shape", None)
-        self.affine = metadata.get("affine", None)
-
-        if self.image_resolution and self.image_shape:
-            self.image_physical_size_mm = [self.image_shape[i] * self.image_resolution[i] for i in range(len(self.image_shape))]
-
-        if self.affine is not None:
-            self.topleft = self.affine[:3, 3]  # New origin in image coordinate system
-            self.topleft[1] *= -1  # Correct Y-axis flip
-            self.topleft[2] *= -1  # Correct Z-axis flip 
+        def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
+                self.image_file_path = image_file_path  # Required for YOLO bbox calculations
+                self.json_folder_path = json_folder_path  # Path to JSON annotation folder
+                self.output_file_path = output_file_path  # YOLO output text file
+                self.yolo_content = []  # Output text content
+        
+                self.img_data, metadata = load_medical_image(image_file_path)
+                self.image_resolution = metadata.get("resolution", None)
+                self.image_shape = metadata.get("shape", None)
+                self.affine = metadata.get("affine", None)
+        
+                if self.image_resolution and self.image_shape:
+                    self.image_physical_size_mm = [self.image_shape[i] * self.image_resolution[i] for i in range(len(self.image_shape))]
+        
+                if self.affine is not None:
+                    self.topleft = self.affine[:3, 3]  # New origin in image coordinate system
+                    self.topleft[1] *= -1  # Correct Y-axis flip
+                    self.topleft[2] *= -1  # Correct Z-axis flip 
                 
     def get_class_index(self, class_label: str) -> int:
         # Define a mapping between class labels and class indices (customize this as needed)
