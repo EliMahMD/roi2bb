@@ -1,5 +1,11 @@
 json
-nibabel or pydicom or PIL #depends on your image format
 os
 glob
+numpy
 argparse
+#depending on your image format
+nibabel
+pydicom
+PIL
+cv2
+SimpleITK
