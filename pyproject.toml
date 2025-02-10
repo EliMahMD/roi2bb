@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "roi2bb"
+version = "0.1.0"
+description = "Convert 3D Slicer JSON annotations to YOLO format."
+authors = [{ name = "Elham Mahmoudi", email = "mahmoudi.elham91@gmail.com" }]
+dependencies = ["numpy", "pandas", "opencv-python"]
