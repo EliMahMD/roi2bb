@@ -1,77 +1,63 @@
-import nibabel as nib
-import pydicom
-import cv2
-import numpy as np
-import SimpleITK as sitk
-from PIL import Image
 import os
+import re
 
-def load(image_file_path, file_format=None):
+def convert_bbox_to_yolo(x, y, width, height, img_shape):
     """
-    Load a medical image from DICOM, NIfTI, or standard image formats (PNG, JPEG, etc.).
-    
+    Converts bounding box from absolute coordinates to YOLO format.
+
     Args:
-        image_file_path (str): Path to the image file.
-        file_format (str, optional): Manually specify format ("nifti", "dicom", "png", "mha", etc.).
-                                     If None, it will infer from the file extension.
+        x (int): X coordinate (top-left).
+        y (int): Y coordinate (top-left).
+        width (int): Box width.
+        height (int): Box height.
+        img_shape (tuple): Image shape (height, width).
 
     Returns:
-        img_data (numpy.ndarray): The image array.
-        metadata (dict): A dictionary containing image metadata.
+        str: YOLO formatted bounding box string.
     """
-    if file_format is None:
-        file_ext = os.path.splitext(image_file_path)[1].lower()
-        file_format = {
-            ".nii": "nifti",
-            ".nii.gz": "nifti",
-            ".dcm": "dicom",
-            ".png": "png",
-            ".jpg": "jpg",
-            ".jpeg": "jpg",
-            ".bmp": "bmp",
-            ".tiff": "tiff",
-            ".mha": "mha",
-            ".mhd": "mha",
-        }.get(file_ext, None)
+    img_height, img_width = img_shape[:2]
+    x_center = (x + width / 2) / img_width
+    y_center = (y + height / 2) / img_height
+    width_norm = width / img_width
+    height_norm = height / img_height
 
-    metadata = {}
+    return f"{x_center:.6f} {y_center:.6f} {width_norm:.6f} {height_norm:.6f}"
 
-    try:
-        if file_format == "nifti":  # NIfTI format
-            img = nib.load(image_file_path)
-            img_data = img.get_fdata()
-            header = img.header
-            metadata = {
-                "resolution": header.get_zooms(),
-                "shape": img.shape,
-                "affine": img.affine
-            }
+def get_json_files(folder_path):
+    """
+    Returns a list of JSON files in a given folder.
 
-        elif file_format == "dicom":  # DICOM format
-            dicom_img = pydicom.dcmread(image_file_path)
-            img_data = dicom_img.pixel_array
-            metadata = {
-                "PixelSpacing": dicom_img.get("PixelSpacing", None),
-                "Shape": img_data.shape
-            }
+    Args:
+        folder_path (str): Path to the folder.
 
-        elif file_format in ["png", "jpg", "jpeg", "bmp", "tiff"]:  # Standard images
-            img = Image.open(image_file_path)
-            img_data = np.array(img.convert("L"))  # Convert to grayscale
-            metadata = {"shape": img_data.shape}
+    Returns:
+        list: List of JSON filenames.
+    """
+    return [f for f in os.listdir(folder_path) if f.endswith(".json")]
 
-        elif file_format == "mha":  # MetaImage (MHA/MHD)
-            itk_img = sitk.ReadImage(image_file_path)
-            img_data = sitk.GetArrayFromImage(itk_img)
-            metadata = {
-                "resolution": itk_img.GetSpacing(),
-                "shape": img_data.shape,
-            }
-            
+def map_unique_names(json_files):
+    """
+    Maps unique organ names (ignoring numeric suffixes) to a unique number.
+
+    Args:
+        json_files (list): List of JSON filenames.
+
+    Returns:
+        dict: Mapping of organ names to unique class IDs.
+    """
+    unique_labels = set()
+
+    for filename in json_files:
+        base_name = os.path.splitext(filename)[0]
+
+        match = re.search(r"_(\D+)", base_name)
+        if match:
+            organ_name = match.group(1).lower()  
         else:
-            raise ValueError(f"Unsupported or unknown file format: {file_format}")
+            organ_name = base_name.lower()
 
-    except Exception as e:
-        raise RuntimeError(f"Error loading image {image_file_path}: {str(e)}")
+        unique_labels.add(organ_name)
 
-    return img_data, metadata
+    label_mapping = {label: i + 1 for i, label in enumerate(sorted(unique_labels))}
+    
+    return label_mapping
