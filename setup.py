@@ -14,13 +14,6 @@ setup(
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     ],
-    install_requires=[  
-        json,
-        nibabel or pydicom or PIL,
-        os,
-        glob,
-        argparse,
-    ],
     entry_points={ 
         'console_scripts': [
             'roi2bb=roi2bb:main', 
