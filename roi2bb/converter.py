@@ -6,21 +6,27 @@ import argparse
 
 
 class roi2bb:
-    def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
-        self.image_file_path = image_file_path # required for the calculation of Yolo format bbox dimensions since the YOLO bbox dimensions are a ratio of original image's dimensions
-        self.json_folder_path = json_folder_path # path to the folder containing 3D Slicer's output JSON files for all ROIs of a single image
-        self.output_file_path = output_file_path # the output text file containing the YOLO format coordinates of all ROIs per image
-        self.yolo_content = [] #output text file content
-        
-        self.img = nib.load(image_file_path)
-        self.header = self.img.header
-        self.image_resolution = self.header.get_zooms()
-        self.image_physical_size_mm = [self.header.get_data_shape()[i] * self.image_resolution[i] for i in range(3)]
-        self.topleft = self.img.affine[:3, 3] #New origin in the Image coordinate system
-        
-        # Correct axis direction discordances in the two coordinate systems
-        self.topleft[1] = -1 * self.topleft[1] 
-        self.topleft[2] = -1 * self.topleft[2]
+def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
+        self.image_file_path = image_file_path  # Required for YOLO bbox calculations
+        self.json_folder_path = json_folder_path  # Path to JSON annotation folder
+        self.output_file_path = output_file_path  # YOLO output text file
+        self.yolo_content = []  # Output text content
+
+        # Load image and metadata
+        self.img_data, metadata = load_medical_image(image_file_path)
+
+        # Handle resolution and affine transforms (if applicable)
+        self.image_resolution = metadata.get("resolution", None)
+        self.image_shape = metadata.get("shape", None)
+        self.affine = metadata.get("affine", None)
+
+        if self.image_resolution and self.image_shape:
+            self.image_physical_size_mm = [self.image_shape[i] * self.image_resolution[i] for i in range(len(self.image_shape))]
+
+        if self.affine is not None:
+            self.topleft = self.affine[:3, 3]  # New origin in image coordinate system
+            self.topleft[1] *= -1  # Correct Y-axis flip
+            self.topleft[2] *= -1  # Correct Z-axis flip (for NIfTI)
         
     def convert_single_roi(self, json_file_path: str):
         base_class_label = os.path.basename(json_file_path).split('.')[0] # extract the class label from the json file name
