@@ -10,7 +10,7 @@ setup(
     license='MIT',  
     packages=find_packages(), 
     classifiers=[
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.x",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     ],
