@@ -1,1 +1,5 @@
-
+json
+nibabel or pydicom or PIL #depends on your image format
+os
+glob
+argparse
