@@ -1,43 +1,39 @@
 import os
 import json
 import re
+import argparse
 import numpy as np
+import nibabel as nib
 from .utils import (
-    convert_bbox_to_yolo,
+    convert_bbox_to_yolo_3d,
     map_unique_names,
     get_json_files,
 )
 
 class AnnotationConverter:
     """
-    Converts 3D Slicer JSON annotations into YOLO format with 3D coordinate corrections.
+    Converts 3D Slicer JSON annotations into YOLO 3D format.
     """
 
     def __init__(self, json_folder_path: str, output_file_path: str, affine: np.ndarray, image_shape: tuple):
         """
-        Initialize the converter.
-
         Args:
             json_folder_path (str): Path to the folder containing JSON annotations.
-            output_file_path (str): Path to save YOLO format output.
+            output_file_path (str): Path to save YOLO 3D format output.
             affine (np.ndarray): Affine transformation matrix from NIfTI header.
             image_shape (tuple): Image dimensions (height, width, depth).
         """
-        self.json_folder_path = json_folder_path
-        self.output_file_path = output_file_path
-        self.image_shape = image_shape  # Needed for YOLO bbox conversion
-        self.affine = affine  # Needed for coordinate transformations
-        self.yolo_content = []  # Stores YOLO format annotations
-
-        # Compute the top-left corner in image coordinate system
-        self.topleft = affine[:3, 3]  # Extract origin
-        self.topleft[1] *= -1  # Flip Y-axis
-        self.topleft[2] *= -1  # Flip Z-axis
+        self.json_folder_path = json_folder_path 
+        self.output_file_path = output_file_path #YOLO text file
+        self.image_shape = image_shape  # image dimensions are needed to normalize bbox dimensions as YOLO instruction
+        self.affine = affine #needed to find origin point's coordinates
+        self.yolo_content = [] 
+        
+        self.topleft = affine[:3, 3]  
+        self.topleft[1] *= -1 
+        self.topleft[2] *= -1 
 
     def process_annotations(self):
-        """
-        Processes all JSON annotation files in the folder and converts them to YOLO format.
-        """
         json_files = get_json_files(self.json_folder_path)
         unique_name_mapping = map_unique_names(json_files)
 
@@ -46,7 +42,6 @@ class AnnotationConverter:
             with open(json_path, "r") as f:
                 annotation_data = json.load(f)
 
-            # Extract organ name from filename and assign a class ID
             base_name = os.path.splitext(json_file)[0]
             match = re.search(r"_(\D+)", base_name)
             organ_name = match.group(1).lower() if match else base_name.lower()
@@ -61,36 +56,35 @@ class AnnotationConverter:
                     annotation["height"],
                     annotation["depth"],
                 )
-
-                # Convert 3D coordinates to 2D projection for YOLO
-                x, y = self.convert_3d_to_2d(x, y, z)
-
-                # Convert to YOLO format
-                yolo_bbox = convert_bbox_to_yolo(x, y, width, height, self.image_shape)
+                yolo_bbox = convert_bbox_to_yolo_3d(x, y, z, width, height, depth, self.image_shape)
 
                 self.yolo_content.append(f"{class_id} {yolo_bbox}\n")
 
-    def convert_3d_to_2d(self, x, y, z):
-        """
-        Converts 3D coordinates to 2D by applying affine transformation.
-
-        Args:
-            x (float): X-coordinate in 3D space.
-            y (float): Y-coordinate in 3D space.
-            z (float): Z-coordinate in 3D space.
-
-        Returns:
-            tuple: Transformed (x, y) in 2D projection.
-        """
-        coord_3d = np.array([x, y, z, 1])
-        transformed = np.dot(self.affine, coord_3d)[:3]  # Apply affine transformation
-        transformed[1] *= -1  # Flip Y-axis
-        transformed[2] *= -1  # Flip Z-axis
-        return transformed[0], transformed[1]  # Return 2D projection (x, y)
-
     def save_to_file(self):
-        """
-        Saves the YOLO annotations to a text file.
-        """
         with open(self.output_file_path, "w") as f:
             f.writelines(self.yolo_content)
+
+def main():
+    parser = argparse.ArgumentParser(description="Convert 3D Slicer JSON annotations to YOLO 3D format.")
+    parser.add_argument("json_folder_path",type=str,help="Path to the folder containing 3D Slicer JSON annotation files.")
+    parser.add_argument("nifti_file",type=str,help="Path to the NIfTI image file (for affine transformation and image dimensions).")
+    parser.add_argument("output_file_path",type=str,help="Path to save the YOLO 3D format output text file.")
+    args = parser.parse_args()
+
+    nifti_img = nib.load(args.nifti_file)
+    affine_matrix = nifti_img.affine
+    image_shape = nifti_img.shape 
+
+    # Run the conversion process
+    converter = AnnotationConverter(
+        json_folder_path=args.json_folder_path,
+        output_file_path=args.output_file_path,
+        affine=affine_matrix,
+        image_shape=image_shape
+    )
+    converter.process_annotations()
+    converter.save_to_file()
+    print(f"json coordinates from {args.json_folder_path} was converted to YOLO text format and saved at: {args.output_file_path}")
+
+if __name__ == "__main__":
+    main()
