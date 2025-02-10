@@ -1,104 +1,57 @@
-import json
 import os
-import glob
-import argparse
-from roi2bb.utils import load, convert_json_to_yolo
-import argparse
+import json
+import re
+from .utils import (
+    convert_bbox_to_yolo,
+    map_unique_names,
+    get_json_files,
+)
 
-class converter:
-        def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
-                self.image_file_path = image_file_path  # Required for YOLO bbox calculations
-                self.json_folder_path = json_folder_path  # Path to JSON annotation folder
-                self.output_file_path = output_file_path  # YOLO output text file
-                self.yolo_content = []  # Output text content
-        
-                self.img_data, metadata = load_medical_image(image_file_path)
-                self.image_resolution = metadata.get("resolution", None)
-                self.image_shape = metadata.get("shape", None)
-                self.affine = metadata.get("affine", None)
-        
-                if self.image_resolution and self.image_shape:
-                    self.image_physical_size_mm = [self.image_shape[i] * self.image_resolution[i] for i in range(len(self.image_shape))]
-        
-                if self.affine is not None:
-                    self.topleft = self.affine[:3, 3]  # New origin in image coordinate system
-                    self.topleft[1] *= -1  # Correct Y-axis flip
-                    self.topleft[2] *= -1  # Correct Z-axis flip 
-                
-    def get_class_index(self, class_label: str) -> int:
-        # Define a mapping between class labels and class indices (customize this as needed)
-        class_mapping = {
-            "left_atrium": 0,
-            "trachea": 1,
-            "lymph_node": 2,
-            # Add more class labels and indices here
-        }
-        return class_mapping.get(class_label, -1)  # Return -1 if class not found
-            
-    def convert(self, json_file_path: str):
-        base_class_label = os.path.basename(json_file_path).split('.')[0] # extract the class label from the json file name
-        if base_class_label.rsplit('_', 1)[-1].isdigit(): 
-            print('number detected')
-            base_class_label = base_class_label.rsplit('_', 1)[0]
-            
-        with open(json_file_path, 'r') as file: 
-            json_data = file.read()
-        data = json.loads(json_data) # extract the Slicer format coordinates and dimensions from the Json files
-        
-        roi = data['markups'][0]
-        center = roi['center']
-        roi_size_mm = roi['size']
-        
-        # Correct axis directions
-        center[0] = -1 * center[0]
-        center[2] = -1 * center[2]
-        new_center = [self.topleft[i] - center[i] for i in range(3)]
+class AnnotationConverter:
+    """
+    Converts 3D Slicer JSON annotations into YOLO format.
+    """
 
-        # Calculate the ROI center coordinates and dimensions from the new origin (YOLO format)
-        yolo_center = [new_center[i] / self.image_physical_size_mm[i] for i in range(3)]
-        yolo_size = [
-            roi_size_mm[0] / self.image_physical_size_mm[0],
-            roi_size_mm[1] / self.image_physical_size_mm[1],
-            roi_size_mm[2] / self.image_physical_size_mm[2]
-        ]
-        
-        class_index = self.get_class_index(base_class_label)
-        yolo_format = f"{class_index} {yolo_center[2]} {yolo_center[0]} {yolo_center[1]} {yolo_size[2]} {yolo_size[0]} {yolo_size[1]}"
-        self.yolo_content.append(yolo_format)
+    def __init__(self, json_folder_path: str, output_file_path: str, image_shape: tuple):
+        """
+        Initialize the converter.
 
-    def process_all_rois(self):
-        json_file_list = glob.glob(os.path.join(self.json_folder_path, '*.json'))
-        for json_file_path in json_file_list:
-            self.convert(json_file_path)
-    
-    def save_output(self):
-        with open(self.output_file_path, 'w') as file:
-            file.write("\n".join(self.yolo_content))
+        Args:
+            json_folder_path (str): Path to the folder containing JSON annotations.
+            output_file_path (str): Path to save YOLO format output.
+            image_shape (tuple): Image dimensions (height, width).
+        """
+        self.json_folder_path = json_folder_path
+        self.output_file_path = output_file_path
+        self.image_shape = image_shape 
+        self.yolo_content = [] 
 
-    def run(self):
-        self.process_all_rois()
-        self.save_output()
+    def process_annotations(self):
+        """
+        Processes all JSON annotation files in the folder and converts them to YOLO format.
+        """
+        json_files = get_json_files(self.json_folder_path)
+        unique_name_mapping = map_unique_names(json_files)
 
+        for json_file in json_files:
+            json_path = os.path.join(self.json_folder_path, json_file)
+            with open(json_path, "r") as f:
+                annotation_data = json.load(f)
 
+            base_name = os.path.splitext(json_file)[0]
+            match = re.search(r"_(\D+)", base_name)
+            organ_name = match.group(1).lower() if match else base_name.lower()
+            class_id = unique_name_mapping[organ_name]  
 
-def main():
-    parser = argparse.ArgumentParser(description="Convert 3D Slicer JSON to YOLO format.")
-    parser.add_argument("input_json", type=str, help="Path to input JSON file")
-    parser.add_argument("output_dir", type=str, help="Directory to save YOLO annotations")
-    args = parser.parse_args()
+            for annotation in annotation_data.get("annotations", []):
+                x, y, width, height = annotation["x"], annotation["y"], annotation["width"], annotation["height"]
+                yolo_bbox = convert_bbox_to_yolo(x, y, width, height, self.image_shape)
 
-    convert_json_to_yolo(args.input_json, args.output_dir)
+                self.yolo_content.append(f"{class_id} {yolo_bbox}\n")
 
-if __name__ == "__main__":
-    main()
-
-
-#from roi2bb import converter
-
-# converter(
-#  nifti_file_path = "./test.nii.gz",
-#   json_file_paths = ["1.json", "4.json", "8.json", "2.json"]
-#   class_labels = 1,
-#   output_file_path = "output.txt",
-#   verbose = True
-# )
+    def save_to_file(self):
+        """
+        Saves the YOLO annotations to a text file.
+        """
+        with open(self.output_file_path, "w") as f:
+            f.writelines(self.yolo_content)
