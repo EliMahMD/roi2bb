@@ -1,13 +1,14 @@
 import os
 import json
-import re
 import argparse
-import numpy as np
+import glob
 import nibabel as nib
 from .utils import (
-    convert_bbox_to_yolo_3d,
-    map_unique_names,
+    load_medical_image,
+    generate_class_mapping,
+    get_class_index,
     get_json_files,
+    extract_class_name
 )
 
 class AnnotationConverter:
@@ -15,76 +16,113 @@ class AnnotationConverter:
     Converts 3D Slicer JSON annotations into YOLO 3D format.
     """
 
-    def __init__(self, json_folder_path: str, output_file_path: str, affine: np.ndarray, image_shape: tuple):
+    def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
         """
+        Initialize the converter.
+
         Args:
-            json_folder_path (str): Path to the folder containing JSON annotations.
+            image_file_path (str): Path to the NIfTI image.
+            json_folder_path (str): Path to folder containing JSON annotation files.
             output_file_path (str): Path to save YOLO 3D format output.
-            affine (np.ndarray): Affine transformation matrix from NIfTI header.
-            image_shape (tuple): Image dimensions (height, width, depth).
         """
-        self.json_folder_path = json_folder_path 
-        self.output_file_path = output_file_path #YOLO text file
-        self.image_shape = image_shape  # image dimensions are needed to normalize bbox dimensions as YOLO instruction
-        self.affine = affine #needed to find origin point's coordinates
-        self.yolo_content = [] 
-        
-        self.topleft = affine[:3, 3]  
-        self.topleft[1] *= -1 
-        self.topleft[2] *= -1 
+        self.image_file_path = image_file_path
+        self.json_folder_path = json_folder_path
+        self.output_file_path = output_file_path
+        self.yolo_content = []  # Stores YOLO 3D format annotations
 
-    def process_annotations(self):
+        # Load image metadata (resolution, shape, affine transform)
+        self.img_data, metadata = load_medical_image(image_file_path)
+        self.image_resolution = metadata.get("resolution", None)
+        self.image_shape = metadata.get("shape", None)
+        self.affine = metadata.get("affine", None)
+
+        if self.image_resolution and self.image_shape:
+            self.image_physical_size_mm = [
+                self.image_shape[i] * self.image_resolution[i] for i in range(len(self.image_shape))
+            ]
+
+        if self.affine is not None:
+            self.topleft = self.affine[:3, 3]  # Extract origin
+            self.topleft[1] *= -1  # Flip Y-axis
+            self.topleft[2] *= -1  # Flip Z-axis
+
+        # Generate class mapping
         json_files = get_json_files(self.json_folder_path)
-        unique_name_mapping = map_unique_names(json_files)
+        self.class_mapping = generate_class_mapping(json_files)
 
-        for json_file in json_files:
-            json_path = os.path.join(self.json_folder_path, json_file)
-            with open(json_path, "r") as f:
-                annotation_data = json.load(f)
+    def convert_single_roi(self, json_file_path: str):
+        """
+        Converts a single ROI from JSON to YOLO 3D format.
 
-            base_name = os.path.splitext(json_file)[0]
-            match = re.search(r"_(\D+)", base_name)
-            organ_name = match.group(1).lower() if match else base_name.lower()
-            class_id = unique_name_mapping[organ_name]  
+        Args:
+            json_file_path (str): Path to the ROI JSON file.
+        """
+        organ_name = extract_class_name(os.path.basename(json_file_path))
+        class_index = get_class_index(organ_name, self.class_mapping)
 
-            for annotation in annotation_data.get("annotations", []):
-                x, y, z, width, height, depth = (
-                    annotation["x"],
-                    annotation["y"],
-                    annotation["z"],
-                    annotation["width"],
-                    annotation["height"],
-                    annotation["depth"],
-                )
-                yolo_bbox = convert_bbox_to_yolo_3d(x, y, z, width, height, depth, self.image_shape)
+        with open(json_file_path, 'r') as file:
+            json_data = file.read()
+        data = json.loads(json_data)
 
-                self.yolo_content.append(f"{class_id} {yolo_bbox}\n")
+        roi = data['markups'][0]
+        center = roi['center']
+        roi_size_mm = roi['size']
 
-    def save_to_file(self):
-        with open(self.output_file_path, "w") as f:
-            f.writelines(self.yolo_content)
+        # Correct axis directions
+        center[0] = -1 * center[0]
+        center[2] = -1 * center[2]
+        new_center = [self.topleft[i] - center[i] for i in range(3)]
+
+        # Normalize coordinates
+        yolo_center = [new_center[i] / self.image_physical_size_mm[i] for i in range(3)]
+        yolo_size = [
+            roi_size_mm[0] / self.image_physical_size_mm[0],
+            roi_size_mm[1] / self.image_physical_size_mm[1],
+            roi_size_mm[2] / self.image_physical_size_mm[2]
+        ]
+
+        yolo_format = f"{class_index} {yolo_center[2]} {yolo_center[0]} {yolo_center[1]} {yolo_size[2]} {yolo_size[0]} {yolo_size[1]}"
+        self.yolo_content.append(yolo_format)
+
+    def process_all_rois(self):
+        """
+        Processes all JSON annotation files in the folder.
+        """
+        json_file_list = get_json_files(self.json_folder_path)
+        for json_file_path in json_file_list:
+            self.convert_single_roi(json_file_path)
+
+    def save_output(self):
+        """
+        Saves the YOLO 3D annotations to a text file.
+        """
+        with open(self.output_file_path, 'w') as file:
+            file.write("\n".join(self.yolo_content))
+
+    def run(self):
+        """
+        Runs the full conversion process.
+        """
+        self.process_all_rois()
+        self.save_output()
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert 3D Slicer JSON annotations to YOLO 3D format.")
-    parser.add_argument("json_folder_path",type=str,help="Path to the folder containing 3D Slicer JSON annotation files.")
-    parser.add_argument("nifti_file",type=str,help="Path to the NIfTI image file (for affine transformation and image dimensions).")
-    parser.add_argument("output_file_path",type=str,help="Path to save the YOLO 3D format output text file.")
+    """
+    Command-line interface for converting 3D Slicer JSON annotations to YOLO 3D format.
+    """
+    parser = argparse.ArgumentParser(description='Convert 3D Slicer ROIs to YOLO 3D bounding box format.')
+    parser.add_argument('image_file', type=str, help='Path to the input NIfTI image file (.nii or .nii.gz).')
+    parser.add_argument('json_folder', type=str, help='Path to the folder containing the 3D Slicer ROI JSON files.')
+    parser.add_argument('output_file', type=str, help='Path to the output YOLO format text file.')
+
     args = parser.parse_args()
 
-    nifti_img = nib.load(args.nifti_file)
-    affine_matrix = nifti_img.affine
-    image_shape = nifti_img.shape 
+    # Initialize the converter
+    converter = AnnotationConverter(args.image_file, args.json_folder, args.output_file)
 
     # Run the conversion process
-    converter = AnnotationConverter(
-        json_folder_path=args.json_folder_path,
-        output_file_path=args.output_file_path,
-        affine=affine_matrix,
-        image_shape=image_shape
-    )
-    converter.process_annotations()
-    converter.save_to_file()
-    print(f"json coordinates from {args.json_folder_path} was converted to YOLO text format and saved at: {args.output_file_path}")
+    converter.run()
+    print(f'Converted ROIs from {args.json_folder} and saved YOLO format output to {args.output_file}')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
