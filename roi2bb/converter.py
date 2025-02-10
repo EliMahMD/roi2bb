@@ -2,7 +2,8 @@ import json
 import os
 import glob
 import argparse
-from .utils import load
+from roi2bb.utils import load, convert_json_to_yolo
+import argparse
 
 class roi2bb:
 def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
@@ -78,19 +79,17 @@ def __init__(self, image_file_path: str, json_folder_path: str, output_file_path
         self.process_all_rois()
         self.save_output()
 
+
+
 def main():
-    parser = argparse.ArgumentParser(description='Convert 3D Slicer ROIs to YOLO bounding box format.')
-    parser.add_argument('image_file', type=str, help='Path to the input NIfTI image file (.nii or .nii.gz).')
-    parser.add_argument('json_folder', type=str, help='Path to the folder containing the 3D Slicer ROI JSON files.')
-    parser.add_argument('output_file', type=str, help='Path to the output YOLO format text file.')
-    
+    parser = argparse.ArgumentParser(description="Convert 3D Slicer JSON to YOLO format.")
+    parser.add_argument("input_json", type=str, help="Path to input JSON file")
+    parser.add_argument("output_dir", type=str, help="Directory to save YOLO annotations")
     args = parser.parse_args()
-    converter = roi2bb(args.image_file, args.json_folder, args.output_file)
-    converter.run()
-    print(f'Converted ROIs from {args.json_folder} and saved YOLO format output to {args.output_file}')
 
+    convert_json_to_yolo(args.input_json, args.output_dir)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 
