@@ -16,8 +16,7 @@ setup(
     ],
     entry_points={ 
         'console_scripts': [
-            'roi2bb=roi2bb:main', 
+            'roi2bb=roi2bb.converter:main', 
         ],
     },
 )
-
