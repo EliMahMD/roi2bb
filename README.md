@@ -2,7 +2,7 @@
 ### "3D Slicer ROI" to "YOLO Bounding Box" Coordinates Converter
 This repository provides a Python class, `roi2bb`, bridging the gap between ground truth preparation and model training for 3D volumetric medical imaging, by converting Regions of Interest (ROI) bounding boxes stored in 3D Slicer JSON format into YOLO models input format. 
 
-When it comes to volumetric medical imaging data, there are few tools (if any) available for 3D bounding box annotation. 3D Slicer's **ROI** function of [**markups** module](https://slicer.readthedocs.io/en/latest/user_guide/modules/markups.html), offers a user-friendly interface to generate 3D bounding boxes around the object/region of interest, edit them in axial, coronal and sagittal views, rotate them for object-oriented tasks and visualize them in 3D view. The central coordinates and the dimensions of these ROI boxes can be extracted as a JSON file, but the output is not compatible with the more commonly used "Image coordinates System", which is the format compatible with the well-known YOLO models. 
+When it comes to volumetric medical imaging data, there are few tools (if any) available for 3D bounding box annotation. 3D Slicer is a robust open-source tool for all types of data visualization, processing and annotation. 3D Slicer's **ROI** function of [**markups** module](https://slicer.readthedocs.io/en/latest/user_guide/modules/markups.html), offers a user-friendly interface to generate 3D bounding boxes around the object/region of interest, edit and rotate them in axial, coronal and sagittal planes for object-oriented tasks and visualize them in 3D view. The central coordinates and the dimensions of these ROI boxes can be extracted as a JSON file, but the output is not compatible with the "Image coordinates System", which is the format compatible with the well-known YOLO family of deep learning models.  
 
 These two [coordinate systems](https://slicer.readthedocs.io/en/latest/user_guide/coordinate_systems.html) have 3 main differences that should be addressed while converting:
 
@@ -14,9 +14,9 @@ These two [coordinate systems](https://slicer.readthedocs.io/en/latest/user_guid
 
     ```"class center_z center_x center_y length_z length_x length_y"```
 
-    The Slicer gives one JSON file for each ROI, while a single YOLO text file contains multiple ROIs for multiple classes, each class defined by a unique index and each ROI reported in a separate line.
+    The Slicer gives a separate JSON file for each ROI, while a single YOLO text file contains multiple ROIs for multiple classes, each class defined by a unique index and each ROI reported in a separate line.
      
-For each image, `roi2bb` receives the path to the NIfTI image file, the path to the folder containing JSON files (one for each ROI) and the desired path to save the YOLO-compatible text file.
+roi2bb offers CLI support for single annotations and python API for several images and multi-class annotations. 
 
 ## Table of Contents:
 
@@ -31,21 +31,26 @@ For each image, `roi2bb` receives the path to the NIfTI image file, the path to 
 ## Requirements:
 
 - Python 3.x
-- nibabel (for handling NIfTI files)
+- os
 - glob
+- numpy
 - json
 - argparse
+- nibabel/pydicom/PIL/cv2/SimpleITK #depending on your images format
 
 ## Installation
+```bash
+pip install roi2bb
+```
+or
 
-Simply download the `roi2bb` repository from the upper-right "Code" button dropdown menu, navigate to the roi2bb folder, organize your data to be compatible with the tool (see [Directory Structure](#directory-structure)) and define your desired class labels, like left_atrium, trachea, etc. (see ).
+Simply download the `roi2bb` repository from the upper-right "Code" button dropdown menu, navigate to the roi2bb folder, organize your data to be compatible with the tool (see [Directory Structure](#directory-structure)).
 
 Here is a stepwise guide to use `roi2bb`:
 
 ### Directory Structure:
-
-Following the YOLO input format, `roi2bb` converts the coordinates of multiple classes and multiple ROIs in each class, to a single text file. Hence, the only consideration is that each of the JSON folders must exclusively contain ROIs corresponding to a single image; Each JSon must be named after a predefined class label (e.g. left_atrium, trachea, etc.) and in case of multiple ROIs for one class, a number must be added by '_' (see below diagram). The numbering order and range do not matter.
-Here is a sample structure, but you can use any structure for `roi2bb`'s Python API (see [Example usage](#usage)), as long as the JSON folder and files follow the mentioned rules.
+Since, yolo text format contains all classes and all labels per class in a single file, roi2bb has to process the whole directory of all annotations at once.
+roi2bb expects the below structure for images and labels. It automatically defines unique class IDs (1,2,3) by mapping the unique classes detected in JSON file names. You can also define your desired mapping using the Python API.
 
 ```
 project_directory/
@@ -56,7 +61,7 @@ project_directory/
 ├── labels/
 │   ├── Patient_001/
 │   │   ├── left_atrium.json
-│   │   ├── lymph_node_4.json
+│   │   ├── lymph_node_1.json
 │   │   ├── lymph_node_2.json
 │   │   ├── lymph_node_3.json
 │   │   └── trachea.json
@@ -65,24 +70,27 @@ project_directory/
 │   │   ├── lymph_node.json
 │   │   └── trachea.json
 │   │── ...
+|   └── Patient_n
 └── output/
-    └── yolo_format.txt
+    │── Patient_001.txt
+    │── Patient_002.txt
+    |── ...
+    └── Patient_n
 ```
 ### Class Index Mapping:
 
-The method get_class_index maps ROI names to YOLO class indices. You can customize the class labels by editing the dictionary inside this method:
+converter = roi2bb("path_to_image_file.nii", "path_to_json_folder", "output_yolo_format.txt", class_map:dic = class_map)
 
 ```bash
-def get_class_index(self, class_label: str) -> int:
-    class_mapping = {
-        "left_atrium": 0,
-        "lymph_node": 1,
-        "trachea": 2,
-        # Add more class labels and indices here
+class_map = {
+    "left_atrium": 0,
+    "lymph_node": 1,
+    "trachea": 2,
+    ...
     }
-    return class_mapping.get(class_label, -1)
 ```
 ### Example Usage:
+
 
 Now that you downloaded the repository, organized your data and customized your labels, you can use the following commands in a command line interface (CLI) or the next one in a Python interface to convert ROIs to YOLO format by `roi2bb`:
 
