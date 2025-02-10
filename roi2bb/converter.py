@@ -3,7 +3,7 @@ import nibabel as nib
 import os
 import glob
 import argparse
-
+from .utils import load
 
 class roi2bb:
 def __init__(self, image_file_path: str, json_folder_path: str, output_file_path: str):
