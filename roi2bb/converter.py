@@ -11,7 +11,7 @@ from .utils import (
     extract_class_name
 )
 
-class AnnotationConverter:
+class Converter:
     """
     Converts 3D Slicer JSON annotations into YOLO 3D format.
     """
@@ -118,7 +118,7 @@ def main():
     args = parser.parse_args()
 
     # Initialize the converter
-    converter = AnnotationConverter(args.image_file, args.json_folder, args.output_file)
+    converter = Converter(args.image_file, args.json_folder, args.output_file)
 
     # Run the conversion process
     converter.run()
