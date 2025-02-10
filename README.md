@@ -1,5 +1,5 @@
 # roi2bb
-### "3D Slicer ROI" to "YOLO Bounding Box" Coordinates Converter
+### "3D Slicer ROI" to "YOLO Bounding Box" Coordinates Converter for Medical Imaging
 This repository provides a Python class, `roi2bb`, bridging the gap between ground truth preparation and model training for 3D volumetric medical imaging, by converting Regions of Interest (ROI) bounding boxes stored in 3D Slicer JSON format into YOLO models input format. 
 
 When it comes to volumetric medical imaging data, there are few tools (if any) available for 3D bounding box annotation. 3D Slicer is a robust open-source tool for all types of data visualization, processing and annotation. 3D Slicer's **ROI** function of [**markups** module](https://slicer.readthedocs.io/en/latest/user_guide/modules/markups.html), offers a user-friendly interface to generate 3D bounding boxes around the object/region of interest, edit and rotate them in axial, coronal and sagittal planes for object-oriented tasks and visualize them in 3D view. The central coordinates and the dimensions of these ROI boxes can be extracted as a JSON file, but the output is not compatible with the "Image coordinates System", which is the format compatible with the well-known YOLO family of deep learning models.  
@@ -83,9 +83,9 @@ converter = roi2bb("path_to_image_file.nii", "path_to_json_folder", "output_yolo
 
 ```bash
 class_map = {
-    "left_atrium": 0,
-    "lymph_node": 1,
-    "trachea": 2,
+    "left_atrium": 1,
+    "lymph_node": 2,
+    "trachea": 3,
     ...
     }
 ```
@@ -96,28 +96,19 @@ Now that you downloaded the repository, organized your data and customized your 
 
 **CLI**
 ```bash
-python roi2bb.py path_to_image_file path_to_json_folder path_to_output_file
+roi2bb example.nii.gz annotations/ output.txt
 ```
 **Python API**
 ```bash
-import nibabel as nib
+from roi2bb.converter import Converter
 
-# Load the affine transformation from a NIfTI file
-nifti_img = nib.load("example.nii.gz")
-affine_matrix = nifti_img.affine
-image_shape = nifti_img.shape  # (height, width, depth)
+image_files_list = Path to the medical images
+json_folders_list = Folders containing the 3D Slicer JSON annotation files corresponding to ptient_n
+output_files_list = Path to save the .txt outputs containing YOLO format annotations
 
-# Initialize converter
-converter = AnnotationConverter(
-    json_folder_path="annotations/",
-    output_file_path="output.txt",
-    affine=affine_matrix,
-    image_shape=image_shape
-)
-
-# Convert annotations and save
-converter.process_annotations()
-converter.save_to_file()
+for image_file_path, json_folder_path, output_file_path in zip(image_files_list, json_folders_list, output_files_list)
+    converter = Converter(image_file_path, json_folder_path, output_file_path)
+    converter.run()
 ```
 
 ### Example Output:
