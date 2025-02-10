@@ -15,15 +15,15 @@ setup(
     "Operating System :: OS Independent",
     ],
     install_requires=[  
-        'nibabel',
-        'json',
-        'numpy',
-        'glob'
+        json,
+        nibabel or pydicom or PIL,
+        os,
+        glob,
+        argparse,
     ],
-    python_requires='>=3.6',  # Specify Python versions that are supported
-    entry_points={  # Optional: If you're adding command-line scripts
+    entry_points={ 
         'console_scripts': [
-            'roi2bb=roi2bb:main',  # Creates a command line script `roi2bb` that calls your `main()` function
+            'roi2bb=roi2bb:main', 
         ],
     },
 )
