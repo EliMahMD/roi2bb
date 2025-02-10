@@ -12,7 +12,7 @@ These two [coordinate systems](https://slicer.readthedocs.io/en/latest/user_guid
 
 3. The Slicer output is in JSON format with the ROI 'center' coordinates (x,y,z) and ROI dimensions 'size' (x_length, y_length,z_length) reported under 'markups' tag, while YOLO-compatible input is a text file with each line presenting one ROI containing: 
 
-    ```"class center_z center_x center_y length_z length_x length_y"```
+    ```"class center_z center_x center_y width height depth"```
 
     The Slicer gives a separate JSON file for each ROI, while a single YOLO text file contains multiple ROIs for multiple classes, each class defined by a unique index and each ROI reported in a separate line.
      
@@ -100,11 +100,24 @@ python roi2bb.py path_to_image_file path_to_json_folder path_to_output_file
 ```
 **Python API**
 ```bash
-from roi2bb.converter import roi2bb
+import nibabel as nib
 
-converter = roi2bb("path_to_image_file.nii", "path_to_json_folder", "output_yolo_format.txt")
+# Load the affine transformation from a NIfTI file
+nifti_img = nib.load("example.nii.gz")
+affine_matrix = nifti_img.affine
+image_shape = nifti_img.shape  # (height, width, depth)
 
-converter.run()
+# Initialize converter
+converter = AnnotationConverter(
+    json_folder_path="annotations/",
+    output_file_path="output.txt",
+    affine=affine_matrix,
+    image_shape=image_shape
+)
+
+# Convert annotations and save
+converter.process_annotations()
+converter.save_to_file()
 ```
 
 ### Example Output:
