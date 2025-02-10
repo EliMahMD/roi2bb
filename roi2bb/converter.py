@@ -1,5 +1,4 @@
 import json
-import nibabel as nib
 import os
 import glob
 import argparse
