@@ -12,10 +12,7 @@ def __init__(self, image_file_path: str, json_folder_path: str, output_file_path
         self.output_file_path = output_file_path  # YOLO output text file
         self.yolo_content = []  # Output text content
 
-        # Load image and metadata
         self.img_data, metadata = load_medical_image(image_file_path)
-
-        # Handle resolution and affine transforms (if applicable)
         self.image_resolution = metadata.get("resolution", None)
         self.image_shape = metadata.get("shape", None)
         self.affine = metadata.get("affine", None)
@@ -26,11 +23,21 @@ def __init__(self, image_file_path: str, json_folder_path: str, output_file_path
         if self.affine is not None:
             self.topleft = self.affine[:3, 3]  # New origin in image coordinate system
             self.topleft[1] *= -1  # Correct Y-axis flip
-            self.topleft[2] *= -1  # Correct Z-axis flip (for NIfTI)
-        
-    def convert_single_roi(self, json_file_path: str):
+            self.topleft[2] *= -1  # Correct Z-axis flip 
+                
+    def get_class_index(self, class_label: str) -> int:
+        # Define a mapping between class labels and class indices (customize this as needed)
+        class_mapping = {
+            "left_atrium": 0,
+            "trachea": 1,
+            "lymph_node": 2,
+            # Add more class labels and indices here
+        }
+        return class_mapping.get(class_label, -1)  # Return -1 if class not found
+            
+    def convert(self, json_file_path: str):
         base_class_label = os.path.basename(json_file_path).split('.')[0] # extract the class label from the json file name
-        if base_class_label.rsplit('_', 1)[-1].isdigit(): #in case of multiple ROIs per class
+        if base_class_label.rsplit('_', 1)[-1].isdigit(): 
             print('number detected')
             base_class_label = base_class_label.rsplit('_', 1)[0]
             
@@ -57,23 +64,12 @@ def __init__(self, image_file_path: str, json_folder_path: str, output_file_path
         
         class_index = self.get_class_index(base_class_label)
         yolo_format = f"{class_index} {yolo_center[2]} {yolo_center[0]} {yolo_center[1]} {yolo_size[2]} {yolo_size[0]} {yolo_size[1]}"
-        # Add multiple ROIs of a single image to output a single text file containing each ROI as a separate line
         self.yolo_content.append(yolo_format)
 
-    def get_class_index(self, class_label: str) -> int:
-        # Define a mapping between class labels and class indices (customize this as needed)
-        class_mapping = {
-            "left_atrium": 0,
-            "trachea": 1,
-            "lymph_node": 2,
-            # Add more class labels and indices here
-        }
-        return class_mapping.get(class_label, -1)  # Return -1 if class not found
-    
     def process_all_rois(self):
         json_file_list = glob.glob(os.path.join(self.json_folder_path, '*.json'))
         for json_file_path in json_file_list:
-            self.convert_single_roi(json_file_path)
+            self.convert(json_file_path)
     
     def save_output(self):
         with open(self.output_file_path, 'w') as file:
@@ -90,11 +86,7 @@ def main():
     parser.add_argument('output_file', type=str, help='Path to the output YOLO format text file.')
     
     args = parser.parse_args()
-    
-    # Initialize the roi2bb converter
     converter = roi2bb(args.image_file, args.json_folder, args.output_file)
-    
-    # Run the conversion process
     converter.run()
     print(f'Converted ROIs from {args.json_folder} and saved YOLO format output to {args.output_file}')
 
