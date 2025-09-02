@@ -6,11 +6,11 @@ When it comes to volumetric medical imaging data, there are few tools (if any) a
 
 These two [coordinate systems](https://slicer.readthedocs.io/en/latest/user_guide/coordinate_systems.html) have 3 main differences that should be addressed while converting:
 
-1. The Slicer output follows the **"Patient coordinate system"**, in which its origin is located at an anatomical landmark not necessarily in the image boundaries, while the YOLO-compatible input format is based on the **"Image coordinate system"**, in which its origin is located at the upper-left corner of the image. Also, the axis directions are not the same in different coordinate systems, changing the point coordinate values.
-    
-2. The Slicer format dimensions are the actual ROI dimensions, while the Yolo format dimensions are a ratio of ROI dimension to image dimensions. 
+1. The Slicer output follows the **"Patient coordinate system"**, in which its origin is located at an anatomical landmark not necessarily in the image boundaries, while the YOLO-compatible input format is based on the **"Image coordinate system"**, in which its origin is located at the upper-left corner of the image. Also, the axis directions are not the same in different coordinate systems, changing the point coordinate values. By origin, we mean the point of x, y, z = [0, 0, 0].
+.    
+2. Width, height and depth in the Slicer output is the actual values in the metric system (mm, cm), while width, height and depth in the Yolo input are a ratio of full image dimensions (in the range of 0 to 1). 
 
-3. The Slicer output is in JSON format with the ROI 'center' coordinates (x,y,z) and ROI dimensions 'size' (x_length, y_length,z_length) reported under 'markups' tag, while YOLO-compatible input is a text file with each line presenting one ROI containing: 
+3. The Slicer output is in JSON format with the ROI 'center' coordinates (x,y,z) and ROI dimensions 'size' (x_length, y_length,z_length) reported under 'markups' tag, while YOLO-compatible input is a text file with each line presenting one bounding box containing: 
 
     ```"class center_z center_x center_y width height depth"```
 
@@ -42,9 +42,14 @@ roi2bb offers CLI support for single annotations and python API for several imag
 ```bash
 pip install roi2bb
 ```
-or
+or directly from GitHub:
 
-Simply download the `roi2bb` repository from the upper-right "Code" button dropdown menu, navigate to the roi2bb folder, organize your data to be compatible with the tool (see [Directory Structure](#directory-structure)).
+```bash
+# Clone the repository
+git clone https://github.com/elimah91/roi2bb.git
+cd roi2bb
+```
+Simply clone or download the roi2bb repository, navigate to the roi2bb folder, organize your data to be compatible with the tool (see [Directory Structure](#directory-structure)).
 
 Here is a stepwise guide to use `roi2bb`:
 
