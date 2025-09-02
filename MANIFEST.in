@@ -1,0 +1,25 @@
+# Include the README file
+include README.md
+
+# Include the license file
+include LICENSE
+
+# Include requirements files
+include requirements.txt
+
+# Include all Python files in the package
+recursive-include roi2bb *.py
+
+# Include test files
+recursive-include tests *.py
+
+# Exclude development and build artifacts
+exclude .gitignore
+exclude .git*
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * *.so
+recursive-exclude * .DS_Store
+exclude build/
+exclude dist/
+exclude *.egg-info/

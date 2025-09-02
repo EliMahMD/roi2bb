@@ -5,20 +5,62 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "roi2bb"
 version = "0.1.0"
-description = "A tool to convert 3D Slicer JSON annotations to YOLO format."
+description = "3D Slicer ROI to YOLO Bounding Box Coordinates Converter for Medical Imaging"
 authors = [{ name = "Elham Mahmoudi", email = "mahmoudi.elham91@gmail.com" }]
+maintainers = [{ name = "Elham Mahmoudi", email = "mahmoudi.elham91@gmail.com" }]
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.7"
-dependencies = [
-    "numpy",
-    "pandas",
-    "opencv-python",
-    "pydicom",
-    "nibabel",
-    "Pillow",
-    "SimpleITK"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Software Development :: Libraries :: Python Modules"
 ]
+keywords = ["medical-imaging", "3d-slicer", "yolo", "bounding-box", "roi", "deep-learning", "computer-vision"]
+dependencies = [
+    "numpy>=1.19.0",
+    "nibabel>=3.2.0"
+]
+
+[project.optional-dependencies]
+all = [
+    "pandas>=1.3.0",
+    "opencv-python>=4.5.0",
+    "pydicom>=2.2.0",
+    "Pillow>=8.0.0",
+    "SimpleITK>=2.1.0"
+]
+dev = [
+    "pytest>=6.0.0",
+    "pytest-cov>=2.12.0",
+    "black>=21.0.0",
+    "flake8>=3.9.0",
+    "mypy>=0.910"
+]
+
+[project.urls]
+Homepage = "https://github.com/elimah91/roi2bb"
+Repository = "https://github.com/elimah91/roi2bb.git"
+Issues = "https://github.com/elimah91/roi2bb/issues"
+Documentation = "https://github.com/elimah91/roi2bb#readme"
 
 [project.scripts]
 roi2bb = "roi2bb.converter:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["roi2bb*"]
+exclude = ["tests*"]
