@@ -49,13 +49,11 @@ or directly from GitHub:
 git clone https://github.com/elimah91/roi2bb.git
 cd roi2bb
 ```
-Simply clone or download the roi2bb repository, navigate to the roi2bb folder, organize your data to be compatible with the tool (see [Directory Structure](#directory-structure)).
-
 Here is a stepwise guide to use `roi2bb`:
 
 ### Directory Structure:
-Since, yolo text format contains all classes and all labels per class in a single file, roi2bb has to process the whole directory of all annotations at once.
-roi2bb expects the below structure for images and labels. It automatically defines unique class IDs (1,2,3) by mapping the unique classes detected in JSON file names. You can also define your desired mapping using the Python API.
+YOLO expects coordinates in form of a single .txt per image, containing all labels of all classes. To generate such output, roi2bb has to process all json files corresponding to a single image, at once. 
+To do so, roi2bb expects the below structure for images and labels. It automatically defines unique class IDs (1,2,3) by mapping the unique classes detected in JSON file names. You can also define your desired mapping using the Python API or modify the Converter class to be compatible with your data.
 
 ```
 project_directory/
@@ -96,12 +94,11 @@ class_map = {
 ```
 ### Example Usage:
 
-
-Now that you downloaded the repository, organized your data and customized your labels, you can use the following commands in a command line interface (CLI) or the next one in a Python interface to convert ROIs to YOLO format by `roi2bb`:
+Now that you installed the package, organized your data and customized your labels, you can use the following commands in a command line interface (CLI) or the next one in a Python interface to convert ROIs to YOLO format by `roi2bb`:
 
 **CLI**
 ```bash
-roi2bb example.nii.gz annotations/ output.txt
+roi2bb example.nii.gz annotations/ output.txt 
 ```
 **Python API**
 ```bash
@@ -109,7 +106,7 @@ from roi2bb.converter import Converter
 
 image_files_list = Path to the medical images
 json_folders_list = Folders containing the 3D Slicer JSON annotation files corresponding to ptient_n
-output_files_list = Path to save the .txt outputs containing YOLO format annotations
+output_files_list = Path to save the .txt outputs containing the YOLO format annotations
 
 for image_file_path, json_folder_path, output_file_path in zip(image_files_list, json_folders_list, output_files_list)
     converter = Converter(image_file_path, json_folder_path, output_file_path)
@@ -125,7 +122,7 @@ for image_file_path, json_folder_path, output_file_path in zip(image_files_list,
 ```
 ### License:
 
-```roi2bb``` is released under the MIT License. See the [LICENSE](LICENSE) file for more details.
+```roi2bb``` is released under the MIT License. See the [LICENSE](LICENSE) for more details.
 
 ### Useful Links
 
