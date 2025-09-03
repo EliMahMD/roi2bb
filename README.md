@@ -46,7 +46,7 @@ or directly from GitHub:
 
 ```bash
 # Clone the repository
-git clone https://github.com/elimah91/roi2bb.git
+git clone https://github.com/EliMahMD/roi2bb.git
 cd roi2bb
 ```
 Here is a stepwise guide to use `roi2bb`:
@@ -136,6 +136,8 @@ for image_file_path, json_folder_path, output_file_path in zip(image_files_list,
 Developer: Elham Mahmoudi
 
 Email: mahmoudi.elham91@gmail.com
+
+Please cite us, if you used roi2bb: [Mahmoudi E, Nagaraja V, Sarraf M, Friedman P, Alkhouli M, Eleid MF, Singh M, Attia ZI, Sobek JD, Naderian M, Nugen F. Fully Automated Aortic Root Localization and Tilt Alignment in Cardiac Computed Tomography. Journal of the Society for Cardiovascular Angiography & Interventions. 2025 Jul 23:103716.](https://www.sciencedirect.com/science/article/pii/S2772930325011585)
 
 GitHub: [https://github.com/elimah91/roi2bb](https://github.com/elimah91/roi2bb)
 
